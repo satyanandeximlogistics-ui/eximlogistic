@@ -7,21 +7,60 @@ import {
   CheckCircle2,
   History
 } from "lucide-react";
-import React, { useState } from "react";
+import { useState, type FormEvent } from "react";
+
+type TrackingStep = {
+  status: string;
+  location: string;
+  time: string;
+  done: boolean;
+  active?: boolean;
+};
+
+type TrackingRecord = {
+  trackingId: string;
+  shipmentStatus: string;
+  estimatedDelivery: string;
+  product: string;
+  mode: string;
+  origin: string;
+  destination: string;
+  timeline: TrackingStep[];
+};
 
 export default function Tracking() {
   const [trackingId, setTrackingId] = useState("");
   const [isSearching, setIsSearching] = useState(false);
-  const [showResult, setShowResult] = useState(false);
+  const [trackingData, setTrackingData] = useState<TrackingRecord | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const apiBaseUrl = (import.meta.env.VITE_API_BASE_URL ?? "http://localhost:4000").replace(/\/$/, "");
 
-  const handleSearch = (e: React.FormEvent) => {
+  const handleSearch = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (!trackingId) return;
+    const value = trackingId.trim();
+    if (!value) {
+      setError("Please enter a tracking reference number.");
+      return;
+    }
+
     setIsSearching(true);
-    setTimeout(() => {
+    setError(null);
+    setTrackingData(null);
+
+    try {
+      const response = await fetch(`${apiBaseUrl}/api/tracking/${encodeURIComponent(value)}`);
+      const payload = await response.json();
+
+      if (!response.ok || !payload?.ok) {
+        throw new Error(payload?.message ?? "Shipment not found.");
+      }
+
+      setTrackingData(payload.data);
+    } catch (fetchError) {
+      setError(fetchError instanceof Error ? fetchError.message : "Unable to fetch tracking information.");
+    } finally {
       setIsSearching(false);
-      setShowResult(true);
-    }, 1500);
+    }
   };
 
   return (
@@ -55,11 +94,16 @@ export default function Tracking() {
             </button>
           </form>
           <p className="mt-4 text-[11px] font-bold text-slate-400 uppercase tracking-widest text-center">
-            Sample ID: SX-98745-EXP
+            Sample IDs: SX-98745-EXP | SX-22014-TUR | SX-44088-PEP
           </p>
+          {error && (
+            <div className="mt-4 rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm font-medium text-rose-700">
+              {error}
+            </div>
+          )}
         </div>
 
-        {showResult && (
+        {trackingData && (
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
@@ -70,24 +114,24 @@ export default function Tracking() {
                 <div className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Shipment Status</div>
                 <div className="text-2xl font-black text-navy flex items-center gap-2">
                   <div className="w-3 h-3 bg-exim-green rounded-full animate-pulse" />
-                  In Transit
+                  {trackingData.shipmentStatus}
+                </div>
+                <div className="mt-2 text-sm text-slate-500 font-medium">
+                  Tracking ID: <span className="font-bold text-navy">{trackingData.trackingId}</span>
                 </div>
               </div>
               <div className="text-right">
                 <div className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Estimated Delivery</div>
-                <div className="text-lg font-black text-navy">Apr 26, 2026</div>
+                <div className="text-lg font-black text-navy">{trackingData.estimatedDelivery}</div>
+                <div className="mt-2 text-sm text-slate-500 font-medium max-w-[18rem]">
+                  Route: <span className="font-bold text-navy">{trackingData.origin}</span> to <span className="font-bold text-navy">{trackingData.destination}</span>
+                </div>
               </div>
             </div>
 
             <div className="p-8">
               <div className="space-y-12 relative before:absolute before:left-[11px] before:top-2 before:bottom-2 before:w-[2px] before:bg-slate-100">
-                {[
-                  { status: "Arrival at Destination Hub", location: "Hyderabad, India", time: "Pending", done: false },
-                  { status: "In Transit", location: "Domestic Transport Route", time: "Apr 20, 10:20 AM", done: false, active: true },
-                  { status: "Departed from Origin Facility", location: "AP Processing Unit", time: "Apr 19, 04:30 PM", done: true },
-                  { status: "Dispatch Documentation Verified", location: "Export Desk", time: "Apr 19, 11:00 AM", done: true },
-                  { status: "Shipment Booked", location: "Satyanand Exim Logistics OPC Private Limited", time: "Apr 18, 09:00 AM", done: true }
-                ].map((step, i) => (
+                {trackingData.timeline.map((step, i) => (
                   <div key={i} className="flex gap-6 relative">
                     <div className={`w-6 h-6 rounded-full border-4 border-white shadow-md flex-shrink-0 z-10 ${step.done ? "bg-exim-green" : step.active ? "bg-exim-green ring-4 ring-exim-green/20" : "bg-slate-200"}`} />
                     <div className={step.active ? "opacity-100" : step.done ? "opacity-100" : "opacity-40"}>
@@ -107,17 +151,17 @@ export default function Tracking() {
             <div className="p-8 bg-navy text-white flex justify-between items-center text-sm">
               <div className="flex items-center gap-3">
                 <Package size={20} className="text-exim-green" />
-                <span>Product: <span className="font-bold">Red Chilli Export Batch</span></span>
+                <span>Product: <span className="font-bold">{trackingData.product}</span></span>
               </div>
               <div className="flex items-center gap-3">
                 <Truck size={20} className="text-exim-green" />
-                <span>Mode: <span className="font-bold uppercase tracking-widest">Road + Freight</span></span>
+                <span>Mode: <span className="font-bold uppercase tracking-widest">{trackingData.mode}</span></span>
               </div>
             </div>
           </motion.div>
         )}
 
-        {!showResult && !isSearching && (
+        {!trackingData && !isSearching && (
           <div className="grid md:grid-cols-2 gap-12 mt-20">
             <div className="p-8 bg-white rounded-2xl border border-slate-100 shadow-sm flex items-start gap-4">
               <div className="w-12 h-12 bg-exim-green/10 text-exim-green rounded-xl flex items-center justify-center flex-shrink-0">

@@ -1,20 +1,43 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
-</div>
+# Frontend / Backend Split
 
-# Run and deploy your AI Studio app
+This repo now has separate deploy targets:
 
-This contains everything you need to run your app locally.
+- `frontend/` for the Vite React site
+- `backend/` for the Express API
 
-View your app in AI Studio: https://ai.studio/apps/99376304-8277-4c2f-93f5-5ba72d1eeb04
+## Frontend
 
-## Run Locally
+```bash
+cd frontend
+npm install
+npm run dev
+```
 
-**Prerequisites:**  Node.js
+Build:
 
+```bash
+cd frontend
+npm run build
+```
 
-1. Install dependencies:
-   `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
-   `npm run dev`
+## Backend
+
+```bash
+cd backend
+npm install
+npm run dev
+```
+
+Health check:
+
+- `GET /health`
+
+Inquiry endpoint:
+
+- `POST /api/contact`
+
+## Deployment
+
+- Deploy `frontend/` as the website.
+- Deploy `backend/` as the API service.
+- Point frontend forms and product links at the backend URLs when you are ready to connect them.

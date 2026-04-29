@@ -11,7 +11,7 @@ import {
 } from "lucide-react";
 import { Link } from "react-router-dom";
 
-import spiceHeroOne from "../assets/spieces/3WgvVVgOuKX6G3zP2z0V_XAoyYHBfBXr6trmfYKm10-qhmUxQ_sgcvbdm5-bn42nj0BVUOmeaC8BbP_QcFRtW4Np5x06qUoWMCKcwsJ9HypGIFxFCg28OSCnADjCm_nk2VI1jZZ7s91uxJPNef-Hx8fnkscO2X8Sy_iU-CvjDS4NN3.jpg";
+import spiceHeroOne from "../assets/3WgvVVgOuKX6G3zP2z0V_XAoyYHBfBXr6trmfYKm10-qhmUxQ_sgcvbdm5-bn42nj0BVUOmeaC8BbP_QcFRtW4Np5x06qUoWMCKcwsJ9HypGIFxFCg28OSCnADjCm_nk2VI1jZZ7s91uxJPNef-Hx8fnkscO2X8Sy_iU-CvjDS4NN3.jpg";
 import spiceHeroTwo from "../assets/spieces/6etXiCWjwUBnrPCxsBI5WSa8gnfrPW3rQ5NU5ysTFFKE6XCm58HM-91nPH3FMDf4jyQ1ulI7FZBDtIj1BJMhRSUrKVUMYj-fgEj_-3AsXfFRJtmgI50-oCDNQZEeLwA9ybv0uFEvNDShArJvoVLG7Pro_8hmpIA-z25iMP.jpg";
 import spiceProductOne from "../assets/spieces/G0ZYH814Pv6GkccL5v0vQrpkEzgkThUyu8Js1wOYxU0KJxvtfnVQ6OBrcp5ncHIXo3I_rERgV8x5R9wP7iUxIJwD1RMErhj1asAtdrnoc6VZO8DLkCfJYEP40DtsaGnlJN036bjZcX06IugtQsvHJygah0QieG91DZtoJU.jpg";
 import spiceProductTwo from "../assets/spieces/kcvZlAGoRQ6I6OnWiH_TjbLv6Md6JWB_UhLHTdTf4OHRGO9ykM0oAvTaDKGlNKq9SUfSkCJGwp53JVu5goXNQnw0ZM5Eonw18uCUxbQ8Sk4rDUSzLYhen0F78-vWuw-1xHQ4-KCc3hUl54f61XeWkEYEQctDcYn05oW7Oz.jpg";
@@ -25,6 +25,14 @@ export default function Home() {
   const [currentSlide, setCurrentSlide] = useState(0);
   const aboutSectionRef = useRef<HTMLElement | null>(null);
   const [aboutVisible, setAboutVisible] = useState(false);
+  const whySectionRef = useRef<HTMLElement | null>(null);
+  const [hasStartedCounters, setHasStartedCounters] = useState(false);
+  const [stats, setStats] = useState({
+    shipments: 0,
+    clients: 0,
+    team: 0,
+    launchYear: 0
+  });
 
   useEffect(() => {
     const timer = window.setInterval(() => {
@@ -55,6 +63,65 @@ export default function Home() {
 
     return () => observer.disconnect();
   }, [aboutVisible]);
+
+  useEffect(() => {
+    const target = whySectionRef.current;
+    if (!target || hasStartedCounters) {
+      return;
+    }
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            setHasStartedCounters(true);
+          }
+        });
+      },
+      { threshold: 0.35 }
+    );
+
+    observer.observe(target);
+
+    return () => observer.disconnect();
+  }, [hasStartedCounters]);
+
+  useEffect(() => {
+    if (!hasStartedCounters) {
+      return;
+    }
+
+    const duration = 1800;
+    const targets = {
+      shipments: 500,
+      clients: 100,
+      team: 50,
+      launchYear: 2024
+    };
+
+    let frame = 0;
+    const start = performance.now();
+
+    const animateCounters = (timestamp: number) => {
+      const progress = Math.min((timestamp - start) / duration, 1);
+      const eased = 1 - Math.pow(1 - progress, 3);
+
+      setStats({
+        shipments: Math.round(targets.shipments * eased),
+        clients: Math.round(targets.clients * eased),
+        team: Math.round(targets.team * eased),
+        launchYear: Math.round(targets.launchYear * eased)
+      });
+
+      if (progress < 1) {
+        frame = window.requestAnimationFrame(animateCounters);
+      }
+    };
+
+    frame = window.requestAnimationFrame(animateCounters);
+
+    return () => window.cancelAnimationFrame(frame);
+  }, [hasStartedCounters]);
 
   return (
     <>
@@ -193,13 +260,14 @@ export default function Home() {
       </section>
 
       <motion.section
+        ref={whySectionRef}
         className="why-section"
         initial={{ opacity: 0, y: 30 }}
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true, amount: 0.2 }}
         transition={{ duration: 0.7, ease: "easeOut" }}
       >
-        <div className="why-wrap" style={{ gridTemplateColumns: "1fr", maxWidth: "820px" }}>
+        <div className="why-wrap">
           <motion.div
             className="why-left"
             initial={{ opacity: 0, x: -28 }}
@@ -209,7 +277,7 @@ export default function Home() {
           >
             <h2 className="why-title">Why Choose Us</h2>
             <p className="why-subtitle">
-              We combine authentic sourcing with premium export quality, dependable logistics support, and long-term trade reliability.
+              We combine authentic sourcing with premium export quality, dependable logistics support, and clear communication for every buyer.
             </p>
 
             <div className="why-points">
@@ -226,6 +294,28 @@ export default function Home() {
                     <h4 className="why-point-title">{point.title}</h4>
                     <p className="why-point-desc">{point.desc}</p>
                   </div>
+                </div>
+              ))}
+            </div>
+          </motion.div>
+
+          <motion.div
+            className="why-right"
+            initial={{ opacity: 0, x: 28 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true, amount: 0.25 }}
+            transition={{ duration: 0.7, ease: "easeOut", delay: 0.1 }}
+          >
+            <div className="why-counters-grid">
+              {[
+                { value: stats.shipments, label: "Export Shipments" },
+                { value: stats.clients, label: "Global Buyers" },
+                { value: stats.team, label: "Support Team" },
+                { value: stats.launchYear, label: "Launch Year" }
+              ].map((counter) => (
+                <div key={counter.label} className="counter-card">
+                  <div className="counter-value">{counter.label === "Launch Year" ? counter.value : `${counter.value}+`}</div>
+                  <div className="counter-label">{counter.label}</div>
                 </div>
               ))}
             </div>

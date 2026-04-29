@@ -1,7 +1,7 @@
 import { Target, TrendingUp } from "lucide-react";
 
 import founderPhoto from "../assets/WhatsApp Image 2026-04-28 at 11.49.21 AM.jpeg";
-import spiceHero from "../assets/spieces/3WgvVVgOuKX6G3zP2z0V_XAoyYHBfBXr6trmfYKm10-qhmUxQ_sgcvbdm5-bn42nj0BVUOmeaC8BbP_QcFRtW4Np5x06qUoWMCKcwsJ9HypGIFxFCg28OSCnADjCm_nk2VI1jZZ7s91uxJPNef-Hx8fnkscO2X8Sy_iU-CvjDS4NN3.jpg";
+import spiceHero from "../assets/3WgvVVgOuKX6G3zP2z0V_XAoyYHBfBXr6trmfYKm10-qhmUxQ_sgcvbdm5-bn42nj0BVUOmeaC8BbP_QcFRtW4Np5x06qUoWMCKcwsJ9HypGIFxFCg28OSCnADjCm_nk2VI1jZZ7s91uxJPNef-Hx8fnkscO2X8Sy_iU-CvjDS4NN3.jpg";
 import spiceImage from "../assets/spieces/G0ZYH814Pv6GkccL5v0vQrpkEzgkThUyu8Js1wOYxU0KJxvtfnVQ6OBrcp5ncHIXo3I_rERgV8x5R9wP7iUxIJwD1RMErhj1asAtdrnoc6VZO8DLkCfJYEP40DtsaGnlJN036bjZcX06IugtQsvHJygah0QieG91DZtoJU.jpg";
 
 export default function About() {

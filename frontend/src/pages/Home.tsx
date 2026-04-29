@@ -11,7 +11,7 @@ import {
 } from "lucide-react";
 import { Link } from "react-router-dom";
 
-import spiceHeroOne from "../assets/3WgvVVgOuKX6G3zP2z0V_XAoyYHBfBXr6trmfYKm10-qhmUxQ_sgcvbdm5-bn42nj0BVUOmeaC8BbP_QcFRtW4Np5x06qUoWMCKcwsJ9HypGIFxFCg28OSCnADjCm_nk2VI1jZZ7s91uxJPNef-Hx8fnkscO2X8Sy_iU-CvjDS4NN3.jpg";
+import spiceHeroOne from "../assets/spice-hero.jpg";
 import spiceHeroTwo from "../assets/spieces/6etXiCWjwUBnrPCxsBI5WSa8gnfrPW3rQ5NU5ysTFFKE6XCm58HM-91nPH3FMDf4jyQ1ulI7FZBDtIj1BJMhRSUrKVUMYj-fgEj_-3AsXfFRJtmgI50-oCDNQZEeLwA9ybv0uFEvNDShArJvoVLG7Pro_8hmpIA-z25iMP.jpg";
 import spiceProductOne from "../assets/spieces/G0ZYH814Pv6GkccL5v0vQrpkEzgkThUyu8Js1wOYxU0KJxvtfnVQ6OBrcp5ncHIXo3I_rERgV8x5R9wP7iUxIJwD1RMErhj1asAtdrnoc6VZO8DLkCfJYEP40DtsaGnlJN036bjZcX06IugtQsvHJygah0QieG91DZtoJU.jpg";
 import spiceProductTwo from "../assets/spieces/kcvZlAGoRQ6I6OnWiH_TjbLv6Md6JWB_UhLHTdTf4OHRGO9ykM0oAvTaDKGlNKq9SUfSkCJGwp53JVu5goXNQnw0ZM5Eonw18uCUxbQ8Sk4rDUSzLYhen0F78-vWuw-1xHQ4-KCc3hUl54f61XeWkEYEQctDcYn05oW7Oz.jpg";

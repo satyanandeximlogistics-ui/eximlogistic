@@ -99,44 +99,45 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         </div>
       </div>
 
-      <nav className={`fixed w-full z-50 transition-all duration-300 ${isScrolled ? "top-0 bg-white/92 backdrop-blur-md shadow-lg py-2" : "top-0 sm:top-[36px] bg-white py-4"} border-b border-slate-100 px-4 sm:px-10`}>
-        <div className="max-w-7xl mx-auto flex justify-between items-center">
-          <Link to="/" className="flex items-center gap-3">
-            <img src="/logo-satyanand-exim.svg" alt="Satyanand Exim Logistics OPC Private Limited logo" className="w-10 h-10" />
-            <div className="flex flex-col leading-tight tracking-tight">
-              <span className="text-[0.88rem] sm:text-lg font-bold text-[#0F2B46]">
+      <nav className={`fixed w-full z-50 transition-all duration-300 ${isScrolled ? "top-0 bg-white/94 backdrop-blur-md shadow-md py-2.5" : "top-0 sm:top-[36px] bg-white py-3.5"} border-b border-slate-100 px-4 sm:px-10`}>
+        <div className="max-w-[1320px] mx-auto flex items-center justify-between gap-4">
+          <Link to="/" className="flex items-center gap-3 shrink-0 min-w-0">
+            <img src="/logo-satyanand-exim.svg" alt="Satyanand Exim Logistics OPC Private Limited logo" className="w-11 h-11 shrink-0" />
+            <div className="flex flex-col leading-tight tracking-tight min-w-0">
+              <span className="text-[0.82rem] sm:text-[0.96rem] font-extrabold text-[#0F2B46] whitespace-nowrap">
                 Satyanand Exim Logistics
               </span>
-              <span className="text-[0.68rem] sm:text-xs font-semibold text-exim-green uppercase tracking-[0.18em]">
+              <span className="text-[0.62rem] sm:text-[0.74rem] font-bold text-exim-green uppercase tracking-[0.26em] whitespace-nowrap">
                 OPC Private Limited
               </span>
             </div>
           </Link>
 
-          <div className="hidden md:flex items-center space-x-8">
+          <div className="hidden lg:flex items-center justify-center gap-1.5 flex-1">
             {navLinks.map((link) => (
               <Link
                 key={link.name}
                 to={link.path}
-                className={`text-[14px] font-medium transition-all ${
+                className={`nav-link-pill text-[14px] font-medium transition-all ${
                   location.pathname === link.path
-                    ? "text-exim-green bg-exim-green/10 border border-exim-green/25 rounded-full px-4 py-1.5 font-bold"
-                    : "text-slate-600 hover:text-exim-green border border-transparent rounded-full px-4 py-1.5 hover:bg-exim-green/7"
+                    ? "is-active text-exim-green"
+                    : "text-slate-600 hover:text-exim-green"
                 }`}
               >
                 {link.name}
               </Link>
             ))}
-
-            <Link to="/contact" className="bg-exim-green hover:bg-green-700 text-white px-6 py-2.5 rounded-[8px] font-bold text-[14px] transition-all shadow-md hover:-translate-y-0.5 active:translate-y-0">
-              Book Consultation
-            </Link>
           </div>
 
-          <div className="md:hidden">
+          <Link to="/contact" className="hidden lg:inline-flex bg-exim-green hover:bg-green-700 text-white px-5 py-2.5 rounded-full font-bold text-[14px] transition-all shadow-sm hover:-translate-y-0.5 active:translate-y-0 shrink-0">
+            Book Consultation
+          </Link>
+
+          <div className="lg:hidden">
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="p-2 text-slate-600"
+              className="p-2.5 text-slate-600 rounded-full border border-slate-200 bg-white shadow-sm"
+              aria-label="Toggle menu"
             >
               {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
             </button>
@@ -146,7 +147,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
             <motion.div
               initial={{ opacity: 0, y: -20 }}
               animate={{ opacity: 1, y: 0 }}
-              className="absolute top-20 left-0 right-0 bg-white border-b border-slate-200 p-4 flex flex-col space-y-4 md:hidden z-50 shadow-xl"
+              className="absolute top-[calc(100%+0.75rem)] left-4 right-4 bg-white border border-slate-200 rounded-3xl p-4 flex flex-col gap-2 lg:hidden z-50 shadow-2xl"
             >
               {navLinks.map((link) => (
                 <Link
@@ -162,7 +163,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                   {link.name}
                 </Link>
               ))}
-              <Link to="/contact" onClick={() => setMobileMenuOpen(false)} className="bg-exim-green text-white px-5 py-3 rounded-[8px] text-center font-bold mx-4">
+              <Link to="/contact" onClick={() => setMobileMenuOpen(false)} className="bg-exim-green text-white px-5 py-3 rounded-full text-center font-bold mt-2">
                 Book Consultation
               </Link>
             </motion.div>
@@ -170,7 +171,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         </div>
       </nav>
 
-      <div className="h-[80px] sm:h-[116px]"></div>
+      <div className="h-[76px] sm:h-[104px]"></div>
 
       <aside className="social-sidebar" aria-label="Social media links">
         {socialLinks.map((social) => (

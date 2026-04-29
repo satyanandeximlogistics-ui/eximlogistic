@@ -30,6 +30,27 @@
   @apply sticky top-0 z-50 bg-white border-b border-slate-200;
 }
 
+.nav-link-pill {
+  @apply relative px-4 py-2 rounded-full transition-colors duration-200;
+}
+
+.nav-link-pill::after {
+  content: "";
+  position: absolute;
+  left: 1rem;
+  right: 1rem;
+  bottom: 0.35rem;
+  height: 2px;
+  border-radius: 999px;
+  background: transparent;
+  transition: background-color 0.2s ease;
+}
+
+.nav-link-pill:hover::after,
+.nav-link-pill.is-active::after {
+  background: #10b981;
+}
+
 .btn-primary {
   @apply bg-blue-accent text-white px-7 py-3 rounded-[30px] font-bold text-[15px] transition-all hover:bg-blue-700 shadow-md;
 }

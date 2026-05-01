@@ -1,31 +1,21 @@
 import cors from "cors";
 import dotenv from "dotenv";
 import express from "express";
+import {
+  appendTrackingStep,
+  getTrackingRecord,
+  listTrackingRecords,
+  saveTrackingRecord,
+  updateTrackingRecord,
+  type TrackingRecordInput
+} from "./trackingStore.js";
 
 dotenv.config();
-
-type TrackingStep = {
-  status: string;
-  location: string;
-  time: string;
-  done: boolean;
-  active?: boolean;
-};
-
-type TrackingRecord = {
-  trackingId: string;
-  shipmentStatus: string;
-  estimatedDelivery: string;
-  product: string;
-  mode: string;
-  origin: string;
-  destination: string;
-  timeline: TrackingStep[];
-};
 
 const app = express();
 const port = Number(process.env.PORT ?? 4000);
 const allowedOrigin = process.env.CORS_ORIGIN;
+const trackingAdminToken = process.env.TRACKING_ADMIN_TOKEN?.trim();
 const escapeHtml = (value: unknown) =>
   String(value ?? "")
     .replaceAll("&", "&amp;")
@@ -33,56 +23,6 @@ const escapeHtml = (value: unknown) =>
     .replaceAll(">", "&gt;")
     .replaceAll('"', "&quot;")
     .replaceAll("'", "&#39;");
-const trackingRecords: Record<string, TrackingRecord> = {
-  "SX-98745-EXP": {
-    trackingId: "SX-98745-EXP",
-    shipmentStatus: "In Transit",
-    estimatedDelivery: "Apr 26, 2026",
-    product: "Red Chilli Export Batch",
-    mode: "Road + Freight",
-    origin: "AP Processing Unit",
-    destination: "Hyderabad, India",
-    timeline: [
-      { status: "Arrival at Destination Hub", location: "Hyderabad, India", time: "Pending", done: false },
-      { status: "In Transit", location: "Domestic Transport Route", time: "Apr 20, 10:20 AM", done: false, active: true },
-      { status: "Departed from Origin Facility", location: "AP Processing Unit", time: "Apr 19, 04:30 PM", done: true },
-      { status: "Dispatch Documentation Verified", location: "Export Desk", time: "Apr 19, 11:00 AM", done: true },
-      { status: "Shipment Booked", location: "Satyanand Exim Logistics OPC Private Limited", time: "Apr 18, 09:00 AM", done: true }
-    ]
-  },
-  "SX-22014-TUR": {
-    trackingId: "SX-22014-TUR",
-    shipmentStatus: "At Port",
-    estimatedDelivery: "May 02, 2026",
-    product: "Organic Turmeric Fingers",
-    mode: "Sea Freight",
-    origin: "Kakinada, Andhra Pradesh",
-    destination: "Dubai, UAE",
-    timeline: [
-      { status: "Ready for Loading", location: "Kakinada Port", time: "Pending", done: false },
-      { status: "At Port", location: "Kakinada Port", time: "Apr 24, 02:40 PM", done: false, active: true },
-      { status: "Customs Clearance Completed", location: "Export Yard", time: "Apr 23, 10:15 AM", done: true },
-      { status: "Packed and Sealed", location: "Processing Unit", time: "Apr 22, 05:50 PM", done: true },
-      { status: "Shipment Booked", location: "Satyanand Exim Logistics OPC Private Limited", time: "Apr 22, 09:10 AM", done: true }
-    ]
-  },
-  "SX-44088-PEP": {
-    trackingId: "SX-44088-PEP",
-    shipmentStatus: "Delivered",
-    estimatedDelivery: "Apr 18, 2026",
-    product: "Black Pepper Export Lot",
-    mode: "Air Freight",
-    origin: "Kerala, India",
-    destination: "Doha, Qatar",
-    timeline: [
-      { status: "Delivered", location: "Doha, Qatar", time: "Apr 18, 01:45 PM", done: true, active: true },
-      { status: "Out for Delivery", location: "Destination City", time: "Apr 18, 08:20 AM", done: true },
-      { status: "Arrived at Destination Airport", location: "Doha Airport", time: "Apr 17, 11:30 PM", done: true },
-      { status: "Departed from Origin Airport", location: "Cochin Airport", time: "Apr 16, 06:10 PM", done: true },
-      { status: "Shipment Booked", location: "Satyanand Exim Logistics OPC Private Limited", time: "Apr 15, 09:00 AM", done: true }
-    ]
-  }
-};
 
 app.use(
   cors(
@@ -97,9 +37,9 @@ app.get("/health", (_req, res) => {
   res.json({ ok: true, service: "satyanand-exim-backend" });
 });
 
-app.get("/api/tracking/:trackingId", (req, res) => {
-  const trackingId = req.params.trackingId?.trim().toUpperCase();
-  const shipment = trackingRecords[trackingId];
+app.get("/api/tracking/:trackingId", async (req, res) => {
+  const trackingId = req.params.trackingId?.trim() ?? "";
+  const shipment = await getTrackingRecord(trackingId);
 
   if (!shipment) {
     res.status(404).json({
@@ -113,6 +53,107 @@ app.get("/api/tracking/:trackingId", (req, res) => {
     ok: true,
     data: shipment
   });
+});
+
+const requireTrackingAdmin = (req: express.Request, res: express.Response, next: express.NextFunction) => {
+  if (!trackingAdminToken) {
+    res.status(500).json({
+      ok: false,
+      message: "Tracking admin token is not configured on the backend."
+    });
+    return;
+  }
+
+  const authorizationHeader = req.header("authorization");
+  const providedToken =
+    req.header("x-tracking-admin-token") ??
+    (authorizationHeader?.startsWith("Bearer ") ? authorizationHeader.slice(7) : null);
+
+  if (providedToken !== trackingAdminToken) {
+    res.status(401).json({
+      ok: false,
+      message: "Unauthorized"
+    });
+    return;
+  }
+
+  next();
+};
+
+app.get("/api/admin/tracking", requireTrackingAdmin, async (_req, res) => {
+  const shipments = await listTrackingRecords();
+  res.json({ ok: true, data: shipments });
+});
+
+app.post("/api/admin/tracking", requireTrackingAdmin, async (req, res) => {
+  const { trackingId, shipmentStatus, estimatedDelivery, product, mode, origin, destination, timeline } = req.body ?? {};
+
+  if (!trackingId || !shipmentStatus || !estimatedDelivery || !product || !mode || !origin || !destination) {
+    res.status(400).json({
+      ok: false,
+      message: "trackingId, shipmentStatus, estimatedDelivery, product, mode, origin, and destination are required."
+    });
+    return;
+  }
+
+  const nextRecord = await saveTrackingRecord({
+    trackingId,
+    shipmentStatus,
+    estimatedDelivery,
+    product,
+    mode,
+    origin,
+    destination,
+    timeline: Array.isArray(timeline) ? timeline : []
+  } satisfies TrackingRecordInput);
+
+  res.status(201).json({ ok: true, data: nextRecord });
+});
+
+app.patch("/api/admin/tracking/:trackingId", requireTrackingAdmin, async (req, res) => {
+  const trackingId = req.params.trackingId?.trim() ?? "";
+  const nextRecord = await updateTrackingRecord(trackingId, req.body ?? {});
+
+  if (!nextRecord) {
+    res.status(404).json({
+      ok: false,
+      message: "Tracking record not found"
+    });
+    return;
+  }
+
+  res.json({ ok: true, data: nextRecord });
+});
+
+app.post("/api/admin/tracking/:trackingId/timeline", requireTrackingAdmin, async (req, res) => {
+  const trackingId = req.params.trackingId?.trim() ?? "";
+  const { status, location, time, done = true, active = true } = req.body ?? {};
+
+  if (!status || !location || !time) {
+    res.status(400).json({
+      ok: false,
+      message: "status, location, and time are required."
+    });
+    return;
+  }
+
+  const nextRecord = await appendTrackingStep(trackingId, {
+    status,
+    location,
+    time,
+    done: Boolean(done),
+    active: Boolean(active)
+  });
+
+  if (!nextRecord) {
+    res.status(404).json({
+      ok: false,
+      message: "Tracking record not found"
+    });
+    return;
+  }
+
+  res.json({ ok: true, data: nextRecord });
 });
 
 app.post("/api/contact", async (req, res) => {

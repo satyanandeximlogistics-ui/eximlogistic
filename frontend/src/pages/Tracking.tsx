@@ -7,7 +7,8 @@ import {
   CheckCircle2,
   History
 } from "lucide-react";
-import { useState, type FormEvent } from "react";
+import { useEffect, useState, type FormEvent } from "react";
+import { useSearchParams } from "react-router-dom";
 
 type TrackingStep = {
   status: string;
@@ -26,6 +27,7 @@ type TrackingRecord = {
   origin: string;
   destination: string;
   timeline: TrackingStep[];
+  updatedAt?: string;
 };
 
 export default function Tracking() {
@@ -33,7 +35,43 @@ export default function Tracking() {
   const [isSearching, setIsSearching] = useState(false);
   const [trackingData, setTrackingData] = useState<TrackingRecord | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [searchParams] = useSearchParams();
   const apiBaseUrl = (import.meta.env.VITE_API_BASE_URL ?? "http://localhost:4000").replace(/\/$/, "");
+  const trackingIdFromUrl = searchParams.get("trackingId")?.trim() ?? "";
+
+  useEffect(() => {
+    if (trackingIdFromUrl) {
+      setTrackingId(trackingIdFromUrl);
+    }
+  }, [trackingIdFromUrl]);
+
+  useEffect(() => {
+    if (!trackingIdFromUrl) {
+      return;
+    }
+
+    const runAutoSearch = async () => {
+      setIsSearching(true);
+      setError(null);
+
+      try {
+        const response = await fetch(`${apiBaseUrl}/api/tracking/${encodeURIComponent(trackingIdFromUrl)}`);
+        const payload = await response.json();
+
+        if (!response.ok || !payload?.ok) {
+          throw new Error(payload?.message ?? "Shipment not found.");
+        }
+
+        setTrackingData(payload.data);
+      } catch (fetchError) {
+        setError(fetchError instanceof Error ? fetchError.message : "Unable to fetch tracking information.");
+      } finally {
+        setIsSearching(false);
+      }
+    };
+
+    void runAutoSearch();
+  }, [apiBaseUrl, trackingIdFromUrl]);
 
   const handleSearch = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -94,7 +132,10 @@ export default function Tracking() {
             </button>
           </form>
           <p className="mt-4 text-[11px] font-bold text-slate-400 uppercase tracking-widest text-center">
-            Sample IDs: SX-98745-EXP | SX-22014-TUR | SX-44088-PEP
+            Use the tracking ID shared by our team on invoice, email, or WhatsApp
+          </p>
+          <p className="mt-2 text-[11px] font-semibold text-slate-400 text-center">
+            Demo IDs for testing: SX-98745-EXP | SX-22014-TUR | SX-44088-PEP
           </p>
           {error && (
             <div className="mt-4 rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm font-medium text-rose-700">
@@ -119,6 +160,11 @@ export default function Tracking() {
                 <div className="mt-2 text-sm text-slate-500 font-medium">
                   Tracking ID: <span className="font-bold text-navy">{trackingData.trackingId}</span>
                 </div>
+                {trackingData.updatedAt && (
+                  <div className="mt-1 text-xs text-slate-400 font-semibold">
+                    Last updated: {new Date(trackingData.updatedAt).toLocaleString()}
+                  </div>
+                )}
               </div>
               <div className="text-right">
                 <div className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Estimated Delivery</div>

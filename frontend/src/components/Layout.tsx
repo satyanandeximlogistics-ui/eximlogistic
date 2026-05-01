@@ -26,6 +26,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     setMobileMenuOpen(false);
+    window.scrollTo(0, 0);
 
     const sections = Array.from(document.querySelectorAll("main section")).filter(
       (section) => !section.classList.contains("hero-container")
@@ -104,7 +105,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
       <nav className={`fixed w-full z-50 transition-all duration-300 ${isScrolled ? "top-0 bg-white/94 backdrop-blur-md shadow-md py-2.5" : "top-0 sm:top-[36px] bg-white py-3.5"} border-b border-slate-100 px-4 sm:px-10`}>
         <div className="max-w-[1320px] mx-auto flex items-center justify-between gap-4">
           <Link to="/" className="flex items-center gap-3 shrink-0 min-w-0">
-            <img src={logoImage} alt={logoAlt} className="w-13 h-13 sm:w-14 sm:h-14 shrink-0 object-contain" />
+            <img src={logoImage} alt={logoAlt} className="w-[3.25rem] h-[3.25rem] sm:w-14 sm:h-14 shrink-0 object-contain" />
             <div className="flex flex-col leading-tight tracking-tight min-w-0">
               <span className="text-[0.82rem] sm:text-[0.96rem] font-extrabold text-[#0F2B46] whitespace-nowrap">
                 Satyanand Exim Logistics

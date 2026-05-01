@@ -7,6 +7,8 @@ import {
   ArrowRight
 } from "lucide-react";
 import { useSearchParams } from "react-router-dom";
+import { useEffect, useMemo, useState } from "react";
+import type { ChangeEvent, FormEvent } from "react";
 
 export default function Contact() {
   const googleMapsUrl = "https://goo.gl/maps/bJfhE3vckNLvQHidA?g_st=aw";
@@ -16,6 +18,83 @@ export default function Contact() {
   const inquiryLabel = product
     ? `${product.replace(/-/g, " ")}${action ? ` - ${action.replace(/-/g, " ")}` : ""}`
     : "";
+  const apiBaseUrl = (import.meta.env.VITE_API_BASE_URL ?? "http://localhost:4000").replace(/\/$/, "");
+
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    serviceType: "",
+    message: ""
+  });
+  const [status, setStatus] = useState<"idle" | "success" | "error">("idle");
+  const [statusMessage, setStatusMessage] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  useEffect(() => {
+    if (!inquiryLabel) {
+      return;
+    }
+
+    setFormData((current) => ({
+      ...current,
+      message: current.message || `Inquiry: ${inquiryLabel}\n\n`
+    }));
+  }, [inquiryLabel]);
+
+  const buttonLabel = useMemo(() => {
+    if (isSubmitting) {
+      return "Sending...";
+    }
+    if (status === "success") {
+      return "Sent Successfully";
+    }
+    return "Send Request";
+  }, [isSubmitting, status]);
+
+  const handleChange = (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+    const { name, value } = event.target;
+    setFormData((current) => ({ ...current, [name]: value }));
+  };
+
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    setIsSubmitting(true);
+    setStatus("idle");
+    setStatusMessage("");
+
+    try {
+      const response = await fetch(`${apiBaseUrl}/api/contact`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          ...formData,
+          product: inquiryLabel || undefined
+        })
+      });
+
+      const result = await response.json().catch(() => ({}));
+
+      if (!response.ok || !result?.ok) {
+        throw new Error(result?.message || "Something went wrong while sending your request.");
+      }
+
+      setStatus("success");
+      setStatusMessage("Thanks for reaching out. Your message was sent successfully.");
+      setFormData({
+        name: "",
+        email: "",
+        serviceType: "",
+        message: ""
+      });
+    } catch (error) {
+      setStatus("error");
+      setStatusMessage(error instanceof Error ? error.message : "Failed to send your message.");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   return (
     <div className="bg-white pb-24">
@@ -61,20 +140,53 @@ export default function Contact() {
         <div className="mt-20 grid lg:grid-cols-2 gap-20">
           <div>
             <h2 className="text-3xl font-black text-navy mb-8">Send A Message</h2>
-            <form className="space-y-6">
+            {statusMessage && (
+              <div
+                className={`mb-6 rounded-2xl px-5 py-4 text-sm font-semibold border ${
+                  status === "success"
+                    ? "border-emerald-200 bg-emerald-50 text-emerald-800"
+                    : "border-rose-200 bg-rose-50 text-rose-800"
+                }`}
+              >
+                {statusMessage}
+              </div>
+            )}
+
+            <form className="space-y-6" onSubmit={handleSubmit}>
               <div className="grid md:grid-cols-2 gap-6">
                 <div className="space-y-2">
                   <label className="text-xs font-bold text-slate-400 uppercase tracking-widest">Full Name</label>
-                  <input type="text" className="w-full px-5 py-4 rounded-xl border border-slate-200 focus:ring-2 focus:ring-exim-green focus:border-transparent outline-none transition-all" placeholder="John Doe" />
+                  <input
+                    name="name"
+                    type="text"
+                    value={formData.name}
+                    onChange={handleChange}
+                    className="w-full px-5 py-4 rounded-xl border border-slate-200 focus:ring-2 focus:ring-exim-green focus:border-transparent outline-none transition-all"
+                    placeholder="John Doe"
+                    required
+                  />
                 </div>
                 <div className="space-y-2">
                   <label className="text-xs font-bold text-slate-400 uppercase tracking-widest">Email Address</label>
-                  <input type="email" className="w-full px-5 py-4 rounded-xl border border-slate-200 focus:ring-2 focus:ring-exim-green focus:border-transparent outline-none transition-all" placeholder="john@company.com" />
+                  <input
+                    name="email"
+                    type="email"
+                    value={formData.email}
+                    onChange={handleChange}
+                    className="w-full px-5 py-4 rounded-xl border border-slate-200 focus:ring-2 focus:ring-exim-green focus:border-transparent outline-none transition-all"
+                    placeholder="john@company.com"
+                    required
+                  />
                 </div>
               </div>
               <div className="space-y-2">
                 <label className="text-xs font-bold text-slate-400 uppercase tracking-widest">Service Type</label>
-                <select className="w-full px-5 py-4 rounded-xl border border-slate-200 focus:ring-2 focus:ring-exim-green focus:border-transparent outline-none transition-all bg-white">
+                <select
+                  name="serviceType"
+                  value={formData.serviceType}
+                  onChange={handleChange}
+                  className="w-full px-5 py-4 rounded-xl border border-slate-200 focus:ring-2 focus:ring-exim-green focus:border-transparent outline-none transition-all bg-white"
+                >
                   <option value="">Select Service Type</option>
                   <option>Export</option>
                   <option>Logistics</option>
@@ -82,10 +194,22 @@ export default function Contact() {
               </div>
               <div className="space-y-2">
                 <label className="text-xs font-bold text-slate-400 uppercase tracking-widest">Your Message</label>
-                <textarea rows={6} className="w-full px-5 py-4 rounded-xl border border-slate-200 focus:ring-2 focus:ring-exim-green focus:border-transparent outline-none transition-all resize-none" placeholder="Share product, quantity, destination market, and quality requirements..."></textarea>
+                <textarea
+                  name="message"
+                  rows={6}
+                  value={formData.message}
+                  onChange={handleChange}
+                  className="w-full px-5 py-4 rounded-xl border border-slate-200 focus:ring-2 focus:ring-exim-green focus:border-transparent outline-none transition-all resize-none"
+                  placeholder="Share product, quantity, destination market, and quality requirements..."
+                  required
+                ></textarea>
               </div>
-              <button className="w-full btn-primary py-5 rounded-xl text-lg flex items-center justify-center gap-3 bg-exim-green hover:bg-green-700 border-none">
-                Send Request <ArrowRight size={20} />
+              <button
+                type="submit"
+                disabled={isSubmitting}
+                className="w-full btn-primary py-5 rounded-xl text-lg flex items-center justify-center gap-3 bg-exim-green hover:bg-green-700 border-none disabled:opacity-70 disabled:cursor-not-allowed"
+              >
+                {buttonLabel} <ArrowRight size={20} />
               </button>
             </form>
           </div>

@@ -23,6 +23,7 @@ export default function Contact() {
   const [formData, setFormData] = useState({
     name: "",
     email: "",
+    phone: "",
     serviceType: "",
     message: ""
   });
@@ -85,6 +86,7 @@ export default function Contact() {
       setFormData({
         name: "",
         email: "",
+        phone: "",
         serviceType: "",
         message: ""
       });
@@ -178,6 +180,18 @@ export default function Contact() {
                     required
                   />
                 </div>
+              </div>
+              <div className="space-y-2">
+                <label className="text-xs font-bold text-slate-400 uppercase tracking-widest">Phone Number</label>
+                <input
+                  name="phone"
+                  type="tel"
+                  value={formData.phone}
+                  onChange={handleChange}
+                  className="w-full px-5 py-4 rounded-xl border border-slate-200 focus:ring-2 focus:ring-exim-green focus:border-transparent outline-none transition-all"
+                  placeholder="+91 98765 43210"
+                  required
+                />
               </div>
               <div className="space-y-2">
                 <label className="text-xs font-bold text-slate-400 uppercase tracking-widest">Service Type</label>

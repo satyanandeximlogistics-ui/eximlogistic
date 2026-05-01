@@ -55,7 +55,6 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     { name: "Products", path: "/exim" },
     { name: "Logistics", path: "/services" },
     { name: "About", path: "/about" },
-    { name: "Tracking", path: "/tracking" },
     { name: "Contact", path: "/contact" }
   ];
 

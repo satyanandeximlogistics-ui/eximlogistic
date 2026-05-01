@@ -5,7 +5,6 @@ import About from "./pages/About";
 import Services from "./pages/Services";
 import EXIM from "./pages/EXIM";
 import ProductDetails from "./pages/ProductDetails";
-import Tracking from "./pages/Tracking";
 import Contact from "./pages/Contact";
 
 export default function App() {
@@ -18,7 +17,6 @@ export default function App() {
           <Route path="/services" element={<Services />} />
           <Route path="/exim" element={<EXIM />} />
           <Route path="/products/:productId" element={<ProductDetails />} />
-          <Route path="/tracking" element={<Tracking />} />
           <Route path="/contact" element={<Contact />} />
         </Routes>
       </Layout>

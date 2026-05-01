@@ -8,11 +8,13 @@ import {
 import { Link, useLocation } from "react-router-dom";
 import React, { useState, useEffect } from "react";
 import { motion } from "motion/react";
+import logoImage from "../assets/logo/WhatsApp Image 2026-04-29 at 7.18.06 PM.jpeg";
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const location = useLocation();
+  const logoAlt = "Satyanand Exim Logistics OPC Private Limited logo";
 
   useEffect(() => {
     const handleScroll = () => {
@@ -102,7 +104,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
       <nav className={`fixed w-full z-50 transition-all duration-300 ${isScrolled ? "top-0 bg-white/94 backdrop-blur-md shadow-md py-2.5" : "top-0 sm:top-[36px] bg-white py-3.5"} border-b border-slate-100 px-4 sm:px-10`}>
         <div className="max-w-[1320px] mx-auto flex items-center justify-between gap-4">
           <Link to="/" className="flex items-center gap-3 shrink-0 min-w-0">
-            <img src="/logo-satyanand-exim.svg" alt="Satyanand Exim Logistics OPC Private Limited logo" className="w-11 h-11 shrink-0" />
+            <img src={logoImage} alt={logoAlt} className="w-11 h-11 shrink-0 object-contain" />
             <div className="flex flex-col leading-tight tracking-tight min-w-0">
               <span className="text-[0.82rem] sm:text-[0.96rem] font-extrabold text-[#0F2B46] whitespace-nowrap">
                 Satyanand Exim Logistics
@@ -195,7 +197,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
       <footer className="bg-white py-12 border-t border-slate-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-10 flex flex-col md:flex-row justify-between items-center gap-6">
           <Link to="/" className="text-xl font-bold text-navy tracking-tight flex items-center gap-2">
-            <img src="/logo-satyanand-exim.svg" alt="Satyanand Exim Logistics OPC Private Limited logo" className="w-7 h-7" />
+            <img src={logoImage} alt={logoAlt} className="w-7 h-7 object-contain" />
             <span className="flex flex-col leading-tight">
               <span className="text-sm sm:text-base text-navy">Satyanand Exim Logistics</span>
               <span className="text-[0.62rem] sm:text-[0.72rem] font-semibold text-exim-green uppercase tracking-[0.18em]">

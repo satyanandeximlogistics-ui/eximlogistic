@@ -20,6 +20,7 @@ import spiceProductFour from "../assets/spieces/STJvq3R4Apb5uLoGPPmSIYK2PS0JZTOz
 import spiceCta from "../assets/spieces/Z7Epc-uXO9q4_E84yNiwd_BdvVwl6R9bXT5Pz-6VKQEqbkMDEac7rnUUtKhH3mscJeO9FLseLyVOvcoNVsHu8YheH7BLyRTRlLYGoafqCfHsdpe2PnWvso0tOFYOVuKR75jHM9fPRHb_Ygfve_EjABepzQXvE5yb9F1w3m.jpg";
 
 export default function Home() {
+  const contactPhone = "+91 7338899898";
   const heroSlides = [spiceHeroOne, spiceHeroTwo, spiceProductThree];
 
   const [currentSlide, setCurrentSlide] = useState(0);
@@ -279,7 +280,7 @@ export default function Home() {
                   {
                     icon: <Phone size={24} />,
                     label: "Phone",
-                    value: "+91 734 896 7849",
+                    value: contactPhone,
                     subtext: "Business Contact"
                   },
                   {

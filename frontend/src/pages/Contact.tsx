@@ -12,6 +12,7 @@ import type { ChangeEvent, FormEvent } from "react";
 
 export default function Contact() {
   const googleMapsUrl = "https://goo.gl/maps/bJfhE3vckNLvQHidA?g_st=aw";
+  const contactPhone = "+91 7338899898";
   const [searchParams] = useSearchParams();
   const product = searchParams.get("product");
   const action = searchParams.get("action");
@@ -118,7 +119,7 @@ export default function Contact() {
       <div className="max-w-7xl mx-auto px-4 sm:px-10 -mt-10">
         <div className="grid lg:grid-cols-3 gap-8">
           {[
-            { icon: <Phone size={24} />, title: "Phone", details: "+91 734 896 7849", sub: "Business Contact" },
+            { icon: <Phone size={24} />, title: "Phone", details: contactPhone, sub: "Business Contact" },
             { icon: <Mail size={24} />, title: "Email", details: "vsatyanand71@gmail.com", sub: "Business Contact" },
             { icon: <MapPin size={24} />, title: "Location", details: "Kakinada, Andhra Pradesh, India", sub: "Operations Base" }
           ].map((item, i) => (

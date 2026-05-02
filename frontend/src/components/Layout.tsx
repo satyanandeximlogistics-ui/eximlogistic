@@ -15,6 +15,8 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   const [isScrolled, setIsScrolled] = useState(false);
   const location = useLocation();
   const logoAlt = "Satyanand Exim Logistics OPC Private Limited logo";
+  const contactPhone = "+91 7338899898";
+  const whatsappNumber = "917338899898";
 
   useEffect(() => {
     const handleScroll = () => {
@@ -74,7 +76,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     {
       name: "WhatsApp",
       iconClass: "fa-brands fa-whatsapp",
-      href: "https://wa.me/917348967849",
+      href: `https://wa.me/${whatsappNumber}`,
       className: "social-link-whatsapp"
     },
     {
@@ -90,7 +92,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
       <div className="bg-[#103146] text-white py-2 px-4 sm:px-10 flex justify-between text-[12px] font-medium hidden sm:flex border-b border-white/10">
         <div className="flex gap-6">
           <span className="flex items-center gap-2">
-            <Phone size={14} className="text-exim-green" /> +91 734 896 7849
+            <Phone size={14} className="text-exim-green" /> {contactPhone}
           </span>
           <span className="flex items-center gap-2">
             <Mail size={14} className="text-exim-green" /> vsatyanand71@gmail.com
@@ -212,7 +214,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
           </div>
           <div className="text-slate-500 text-xs font-semibold space-y-1">
             <div className="flex items-center gap-2">
-              <Phone size={14} className="text-exim-green" /> +91 734 896 7849
+              <Phone size={14} className="text-exim-green" /> {contactPhone}
             </div>
             <div className="flex items-center gap-2">
               <Mail size={14} className="text-exim-green" /> vsatyanand71@gmail.com
